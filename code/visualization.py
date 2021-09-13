@@ -8,8 +8,8 @@ key_Chinese = {'confirm': '累计确诊', 'confirm_add': '当日新增确诊', '
 
 def main_entry(key_list):
     timeline = Timeline(init_opts=opts.InitOpts(
-            width='1900px',
-            height='900px',
+            width='2000px',
+            height='1000px',
         ))
     timeline.add_schema(is_auto_play=True, is_timeline_show=False, play_interval = 300)
 
@@ -32,6 +32,14 @@ def main_entry(key_list):
         timeline.add(grid_chart, str(row))
     timeline.render('../result/timeline.html')
 
+def max_yvalue(yvalue):
+    ylist = [1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000,
+             1000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000]
+    for y in ylist:
+        result = float(yvalue / y)
+        if result > 0.1 and result < 1:
+            return y
+
 def draw_subplot(df, replace_key, row):
 
     top10 = pd.DataFrame(df.iloc[row])
@@ -52,14 +60,14 @@ def draw_subplot(df, replace_key, row):
                 # width='1800px',
                 # height='800px',
                 animation_opts=opts.AnimationOpts(
-                    animation_delay=1000, animation_easing="elasticOut"
+                    animation_delay=500, animation_easing="elasticOut"
                 )
             )
         )
         .add_xaxis(xdata)
         .add_yaxis(series_name = title,
                    is_selected = True,
-                   y_axis = ydata,
+                   yaxis_data = ydata,
                    label_opts=opts.LabelOpts(is_show=True))
         .set_global_opts(title_opts=opts.TitleOpts(
                               title='年份：' + str(df['year'].iloc[row]), subtitle="日期：" + str(df['date'].iloc[row]),
@@ -67,7 +75,9 @@ def draw_subplot(df, replace_key, row):
                               title_textstyle_opts=opts.TextStyleOpts(font_size = 25),
                               subtitle_textstyle_opts=opts.TextStyleOpts(font_size = 20)
                          ),
-                         xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=-15)),
+                         yaxis_opts=opts.AxisOpts(max_=max_yvalue(max(ydata)),
+                                                  axislabel_opts=opts.LabelOpts(font_size=13)),
+                         xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=-15, font_size=13)),
                          axispointer_opts=opts.AxisPointerOpts(
                              is_show=True,
                              link=[{"xAxisIndex": "all"}],
